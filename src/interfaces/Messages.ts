@@ -13,11 +13,19 @@ export enum MoveDirection {
     Right = 8
 }
 
+export enum MouseButtons {
+    None = 0,
+    Left = 1,
+    Right = 2,
+    Middle = 4
+}
+
 export class PlayerInputMessage 
 {
     playerId: string = ''
     moveDirection: number = 0
     angle: number = 0
     sprint: boolean = false
+    pressedButtons: number = 0
 }
 

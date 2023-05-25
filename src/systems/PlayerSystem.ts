@@ -20,6 +20,9 @@ export function createPlayerSystem(keyboard: Phaser.Input.Keyboard.KeyboardPlugi
             }
             Input.mouseX[id] = mouse.x,
             Input.mouseY[id] = mouse.y
+            Input.mouseLeft[id] = mouse.leftButtonDown() ? 1 : 0
+            Input.mouseRight[id] = mouse.rightButtonDown() ? 1 : 0
+            Input.mouseMiddle[id] = mouse.middleButtonDown() ? 1 : 0
         }
         return world
     })

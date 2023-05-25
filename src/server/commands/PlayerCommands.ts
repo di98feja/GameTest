@@ -1,8 +1,9 @@
 import { Command } from "@colyseus/command"
 import MainGame from "../rooms/mainGame.js"
 import { PlayerState } from "../states/mainGameState.js"
-import { MessageType, MoveDirection, PlayerInputMessage } from "../../interfaces/Messages.js"
+import { MessageType, MouseButtons, MoveDirection, PlayerInputMessage } from "../../interfaces/Messages.js"
 import MatterJS from "matter-js";
+import { HandleWeaponLogic } from "../gameLogic/weaponLogic.js";
 
 export class OnPlayerJoinedCommand extends Command<MainGame, string>
 {
@@ -12,7 +13,7 @@ export class OnPlayerJoinedCommand extends Command<MainGame, string>
         newPlayer.x = 50
         newPlayer.y = 50
         this.state.players.set(sessionId, newPlayer)
-        const body = MatterJS.Bodies.circle(50, 50, 10, {density:1, friction:1})
+        const body = MatterJS.Bodies.circle(50, 50, 15, {density:1, friction:1, restitution:0.9})
         MatterJS.Composite.add(this.room.matterPhysics.world, body)
         this.room.playerBodies.set(sessionId, body)
         this.room.broadcast(MessageType.PlayerJoin, {sessionId})
@@ -23,7 +24,11 @@ export class OnPlayerLeaveCommand extends Command<MainGame, string>
 {
   execute( sessionId ) 
   {
+    const playerBody = this.room.playerBodies.get(sessionId)
+    if (!playerBody) return
+    MatterJS.Composite.remove(this.room.matterPhysics.world, playerBody, true)
     this.state.players.delete(sessionId)
+    this.room.playerBodies.delete(sessionId)
     this.room.broadcast(MessageType.PlayerLeave, {sessionId})
   }
 }
@@ -41,7 +46,7 @@ export class PlayerInputCommandPayload
 
 export class OnPlayerInputCommand extends Command<MainGame, PlayerInputCommandPayload>
 {
-    execute( payload )
+    execute( payload:PlayerInputCommandPayload )
     {
         const playerBody = this.room.playerBodies.get(payload.sessionId)
         if (!playerBody) return;
@@ -52,7 +57,6 @@ export class OnPlayerInputCommand extends Command<MainGame, PlayerInputCommandPa
         const isDown = !!(payload.message.moveDirection & MoveDirection.Down)
         const isLeft = !!(payload.message.moveDirection & MoveDirection.Left)
         const isRight = !!(payload.message.moveDirection & MoveDirection.Right)
-        playerBody.speed
         if (isUp) {
             MatterJS.Body.setVelocity(playerBody, MatterJS.Vector.create(playerBody.velocity.x, -currentSpeed))
         } else if(isDown) {
@@ -68,6 +72,11 @@ export class OnPlayerInputCommand extends Command<MainGame, PlayerInputCommandPa
         } else {
             MatterJS.Body.setVelocity(playerBody, MatterJS.Vector.create(0, playerBody.velocity.y))
         }
+
+        const isLeftMouse = !!(payload.message.pressedButtons & MouseButtons.Left)
+        const isRightMouse = !!(payload.message.pressedButtons & MouseButtons.Right)
+        const isMiddleMouse = !!(payload.message.pressedButtons & MouseButtons.Middle)
+        HandleWeaponLogic(isLeftMouse, payload.sessionId, this.room)
     }
 }
 

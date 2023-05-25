@@ -7,7 +7,16 @@ export interface IPlayerState
     velocityY:number
 }
 
+export interface IProjectileState{
+    x:number
+    y:number
+    velocityX:number
+    velocityY:number
+    ttl: number
+}
+
 export interface IMainGameState
 {
     players: Map<string, IPlayerState>
+    projectiles: Map<string, IProjectileState>
 }

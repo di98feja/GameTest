@@ -3,7 +3,7 @@ import { defineQuery, defineSystem } from "bitecs";
 import Player from "../components/Player"
 import Input from "../components/Input"
 import Server from "../client/services/server";
-import { MoveDirection, PlayerInputMessage } from "../interfaces/Messages";
+import { MouseButtons, MoveDirection, PlayerInputMessage } from "../interfaces/Messages";
 import Position from "../components/Position";
 
 export function createClientSendInputSystem(server: Server, idMap: Map<number,string>)
@@ -25,6 +25,9 @@ export function createClientSendInputSystem(server: Server, idMap: Map<number,st
             const mousePos = new Phaser.Math.Vector2(Input.mouseX[id], Input.mouseY[id])
             inputMessage.angle = Phaser.Math.Angle.BetweenPoints(playerPos, mousePos)
             inputMessage.sprint = !!Input.shift[id]
+            inputMessage.pressedButtons = (Input.mouseLeft[id] ? MouseButtons.Left : 0)
+                                    + (Input.mouseRight[id] ? MouseButtons.Right : 0)
+                                    + (Input.mouseMiddle[id] ? MouseButtons.Middle : 0)
             server?.signalPlayerInput(inputMessage)
         }
 

@@ -69,17 +69,3 @@ export function createSpriteInterpolationSystem() {
     })
 }
 
-export function createMatterPhysicsSyncSystem() {
-    const query = defineQuery([Position, Sprite])
-    return defineSystem(world => {
-        for (const id of query(world)) {
-            const sprite = matterSpriteById.get(id)
-            if (!sprite) continue
-
-            Position.x[id] = sprite.x
-            Position.y[id] = sprite.y
-        }
-        return world
-    })
-}
-

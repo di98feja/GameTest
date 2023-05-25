@@ -7,7 +7,10 @@ export const Input = defineComponent({
     right: Types.ui8,
     shift: Types.ui8,
     mouseX: Types.i32,
-    mouseY: Types.i32
+    mouseY: Types.i32,
+    mouseLeft: Types.ui8,
+    mouseRight: Types.ui8,
+    mouseMiddle: Types.ui8
 })
 
 export default Input
