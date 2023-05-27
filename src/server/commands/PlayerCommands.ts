@@ -13,7 +13,7 @@ export class OnPlayerJoinedCommand extends Command<MainGame, string>
         newPlayer.x = 50
         newPlayer.y = 50
         this.state.players.set(sessionId, newPlayer)
-        const body = MatterJS.Bodies.circle(50, 50, 15, {density:1, friction:1, restitution:0.9})
+        const body = MatterJS.Bodies.circle(50, 50, 12, {density:1, friction:1, restitution:0.9})
         MatterJS.Composite.add(this.room.matterPhysics.world, body)
         this.room.playerBodies.set(sessionId, body)
         this.room.broadcast(MessageType.PlayerJoin, {sessionId})

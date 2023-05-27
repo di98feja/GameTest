@@ -15,8 +15,20 @@ export interface IProjectileState{
     ttl: number
 }
 
+export interface IVec2 {
+    x:number
+    y:number
+}
+
+export interface IDebugInfo {
+    origin:IVec2
+    vertices:Array<IVec2>
+    isStatic:boolean
+}
+
 export interface IMainGameState
 {
     players: Map<string, IPlayerState>
     projectiles: Map<string, IProjectileState>
+    debugBodies: Map<string, IDebugInfo>
 }

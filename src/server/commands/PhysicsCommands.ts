@@ -1,6 +1,9 @@
 import { Command } from "@colyseus/command"
 import MainGame from "../rooms/mainGame.js"
 import MatterJS from "matter-js";
+import { DebugInfo, Vec2 } from "../states/mainGameState.js";
+
+const SEND_DEBUG_BODY_OUTLINES = true;
 
 export class OnAfterPhysicsUpdateCommand extends Command<MainGame>
 {
@@ -38,5 +41,25 @@ export class OnAfterPhysicsUpdateCommand extends Command<MainGame>
             console.log(`Speed:${projectileBody.speed}`)
             console.log(`Motion:${projectileBody.motion}`)
         }  
+        if (SEND_DEBUG_BODY_OUTLINES) 
+        {
+            for (const body of MatterJS.Composite.allBodies(this.room.matterPhysics.world)) {
+                const di = new DebugInfo()
+                di.origin = new Vec2()
+                di.origin.x = body.position.x
+                di.origin.y = body.position.y
+                for (const v of body.vertices) {
+                    const dv = new Vec2()
+                    dv.x = v.x
+                    dv.y = v.y
+                    di.vertices.push(dv)
+                }
+                di.isStatic = body.isStatic
+                this.state.debugBodies.set(body.id.toString(), di)
+            }
+            for (const id of Array.from(this.state.debugBodies.keys()).filter((k) => !MatterJS.Composite.allBodies(this.room.matterPhysics.world).find((b) => b.id.toString() == k))) {
+                this.state.debugBodies.delete(id)
+            }
+        }
     }
 }

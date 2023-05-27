@@ -104,7 +104,7 @@ export default class Game extends Phaser.Scene {
 			createClientReceiveProjectileStateSystem(this.projectile_localIdToServerIdMap, this.currentState)(this.worldECS)
 			createUpdateLocalSpritesSystem()(this.worldECS)
 
-			createClientReceiveDebugStateSystem(this.matter, this.currentState, this.)
+			createClientReceiveDebugStateSystem(this.matter, this.currentState)
 		})
 
 		this.clientUpdatePipeline = pipe(
