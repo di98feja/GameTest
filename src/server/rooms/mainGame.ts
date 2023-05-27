@@ -25,7 +25,7 @@ export default class MainGame extends Colyseus.Room<MainGameState>
         this.matterPhysics = MatterJS.Engine.create()
         this.matterPhysics.gravity.x = 0
         this.matterPhysics.gravity.y = 0
-        
+
         this.setState(new MainGameState())
         this.onMessage(MessageType.PlayerInput,  (client, message) => {
             const m = message as PlayerInputMessage
@@ -43,7 +43,7 @@ export default class MainGame extends Colyseus.Room<MainGameState>
                 if (!p) continue
                 if (p.ttl <= this.clock.currentTime) {
                     console.log(`remove ${proj[0]} at ${p.body.position.x},${p.body.position.y}`)
-                    MatterJS.Composite.remove(this.matterPhysics.world, p.body)
+                    MatterJS.Composite.remove(this.matterPhysics.world, p.body, true)
                     this.projectiles.delete(proj[0])
                     this.state.projectiles.delete(proj[0])
                 }

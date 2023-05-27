@@ -16,7 +16,7 @@ import { createPlayerSystem as createPlayerInputSystem } from '../../systems/Pla
 import Velocity from '../../components/Velocity'
 import { IMainGameState } from '../../interfaces/IMainGameState'
 import { createClientSendInputSystem } from '../../systems/ClientSendInputSystem'
-import { createClientReceiveProjectileStateSystem, createClientReceiveStateSystem } from '../../systems/ClientReceiveStateSystem'
+import { createClientReceiveDebugStateSystem, createClientReceiveProjectileStateSystem, createClientReceiveStateSystem } from '../../systems/ClientReceiveStateSystem'
 import { createPlayerStateUpdateSystem } from '../../systems/PlayerControlSystem'
 enum Textures
 {
@@ -103,6 +103,8 @@ export default class Game extends Phaser.Scene {
 			createClientReceiveStateSystem(this.player_localIdToServerIdMap, this.currentState)(this.worldECS)
 			createClientReceiveProjectileStateSystem(this.projectile_localIdToServerIdMap, this.currentState)(this.worldECS)
 			createUpdateLocalSpritesSystem()(this.worldECS)
+
+			createClientReceiveDebugStateSystem(this.matter, this.currentState, this.)
 		})
 
 		this.clientUpdatePipeline = pipe(
@@ -158,6 +160,7 @@ export default class Game extends Phaser.Scene {
 			if (!this.player_serverIdToLocalIdMap.has(p[0])) {
 				console.log(`adding ${p[0]}`)
 				this.createPlayer(p[0], worldECS, false)
+				this.matter.bodies.circle(p[1].x, p[1].y, 20)
 			}
 		}
 	}
