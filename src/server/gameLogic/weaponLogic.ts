@@ -5,8 +5,9 @@ import { ProjectileState } from "../states/mainGameState.js";
 import pkg from 'colyseus';
 const { generateId } = pkg;
 
-const PROJECTILE_SPEED  = 10
+const PROJECTILE_SPEED  = 8
 const PROJECTILE_TTL_CHARGE_TO_MS_RATIO = 1
+const PROJECTILE_TTL_MIN = 500
 
 export class Projectile {
     ttl:number
@@ -29,9 +30,9 @@ export function HandleWeaponLogic(firePressed:boolean, playerId:string, mainGame
     else if (!firePressed && player.weaponChargeStart > 0) {
         console.log('Adding projectile')
         const playerPos = MatterJS.Vector.create(player.x, player.y)
-        const projectile = CreateWeaponProjectile(playerId, playerPos, player.direction)
+        const projectile = CreateWeaponProjectile(mainGame.playerBodies.get(playerId)?.id ?? 0, playerPos, player.direction)
         MatterJS.Composite.add(mainGame.matterPhysics.world, projectile)
-        const projectileTTL = (mainGame.clock.currentTime - player.weaponChargeStart) * PROJECTILE_TTL_CHARGE_TO_MS_RATIO
+        const projectileTTL = Math.max((mainGame.clock.currentTime - player.weaponChargeStart) * PROJECTILE_TTL_CHARGE_TO_MS_RATIO, PROJECTILE_TTL_MIN)
         mainGame.projectiles.set(projectile.label, new Projectile(mainGame.clock.currentTime + projectileTTL, projectile))
         const p = mainGame.projectiles.get(projectile.label)
         console.log(`p:${p?.ttl}, ${p?.body.label}`)
@@ -50,9 +51,10 @@ function CreateProjectileState(projectile: MatterJS.Body) : ProjectileState {
     return ps
 }
 
-function CreateWeaponProjectile(playerId: string, playerPos: MatterJS.Vector, direction: number) : MatterJS.Body {
-    const projectile = MatterJS.Bodies.circle(playerPos.x, playerPos.y, 10, {density:0.8, friction:0.0, frictionAir:0.0, restitution:0.9, label:generateId(8) })
-    let spawnPosVector = MatterJS.Vector.create(30, 0)
+function CreateWeaponProjectile(playerId: number, playerPos: MatterJS.Vector, direction: number) : MatterJS.Body {
+    
+    const projectile = MatterJS.Bodies.circle(playerPos.x, playerPos.y, 10, {density:1.0, friction:0.0, frictionAir:0.0, restitution:1.0, label:generateId(8), collisionFilter: {group:-playerId} })
+    let spawnPosVector = MatterJS.Vector.create(0, 0)
     spawnPosVector = MatterJS.Vector.rotate(spawnPosVector, direction)
     let directionVector = MatterJS.Vector.create(PROJECTILE_SPEED, 0)
     directionVector = MatterJS.Vector.rotate(directionVector, direction)

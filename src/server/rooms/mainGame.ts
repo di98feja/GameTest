@@ -6,6 +6,7 @@ import { OnPlayerInputCommand, OnPlayerJoinedCommand, PlayerInputCommandPayload,
 import MatterJS from "matter-js";
 import { OnAfterPhysicsUpdateCommand } from "../commands/PhysicsCommands.js";
 import { Projectile } from "../gameLogic/weaponLogic.js";
+import { CreateMapInMatterCommand, LoadMapCommand } from "../commands/MapCommands.js";
 
 export default class MainGame extends Colyseus.Room<MainGameState>
 {
@@ -51,6 +52,9 @@ export default class MainGame extends Colyseus.Room<MainGameState>
 
             MatterJS.Engine.update(this.matterPhysics, deltaTime)
         })
+
+        this.dispatcher.dispatch(new LoadMapCommand())
+        this.dispatcher.dispatch(new CreateMapInMatterCommand())
     }
 
     onJoin(client:Colyseus.Client) {

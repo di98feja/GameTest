@@ -3,7 +3,7 @@ import MainGame from "../rooms/mainGame.js"
 import MatterJS from "matter-js";
 import { DebugInfo, Vec2 } from "../states/mainGameState.js";
 
-const SEND_DEBUG_BODY_OUTLINES = true;
+const SEND_DEBUG_BODY_OUTLINES = false;
 
 export class OnAfterPhysicsUpdateCommand extends Command<MainGame>
 {
@@ -44,22 +44,41 @@ export class OnAfterPhysicsUpdateCommand extends Command<MainGame>
         if (SEND_DEBUG_BODY_OUTLINES) 
         {
             for (const body of MatterJS.Composite.allBodies(this.room.matterPhysics.world)) {
-                const di = new DebugInfo()
-                di.origin = new Vec2()
-                di.origin.x = body.position.x
-                di.origin.y = body.position.y
-                for (const v of body.vertices) {
-                    const dv = new Vec2()
-                    dv.x = v.x
-                    dv.y = v.y
-                    di.vertices.push(dv)
-                }
-                di.isStatic = body.isStatic
+                if (body.isStatic && this.state.debugBodies.has(body.id.toString())) continue
+                const di = CreateDebugInfo(body);
                 this.state.debugBodies.set(body.id.toString(), di)
+
+                if (body.parts.length > 1) {
+                    console.log(`di:${body.id}, parts:${body.parts.length}`)
+
+                    for (let i = 0; i < body.parts.length; i++) {
+                        if (i == 0) continue
+                        const part = body.parts[i]
+                        const dip = CreateDebugInfo(part)
+                        console.log(`dip:${part.id}, v: ${part.vertices.length}`)
+                        this.state.debugBodies.set(part.id.toString(), dip)
+                    }
+                }
             }
+
             for (const id of Array.from(this.state.debugBodies.keys()).filter((k) => !MatterJS.Composite.allBodies(this.room.matterPhysics.world).find((b) => b.id.toString() == k))) {
                 this.state.debugBodies.delete(id)
             }
+        }
+
+        function CreateDebugInfo(body: MatterJS.Body) {
+            const di = new DebugInfo();
+            di.origin = new Vec2();
+            di.origin.x = body.position.x;
+            di.origin.y = body.position.y;
+            for (const v of body.vertices) {
+                const dv = new Vec2();
+                dv.x = v.x;
+                dv.y = v.y;
+                di.vertices.push(dv);
+            }
+            di.isStatic = body.isStatic;
+            return di;
         }
     }
 }

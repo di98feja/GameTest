@@ -14,7 +14,7 @@
       "outDir": "lib",
       "module": "ESNext",
       "noImplicitAny": false,
-      "moduleResolution": "nodenext",
+      "moduleResolution": "node",
       "experimentalDecorators": true,
       "allowSyntheticDefaultImports": true,
       "lib": [

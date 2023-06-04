@@ -18,15 +18,29 @@ import { IMainGameState } from '../../interfaces/IMainGameState'
 import { createClientSendInputSystem } from '../../systems/ClientSendInputSystem'
 import { createClientReceiveDebugStateSystem, createClientReceiveProjectileStateSystem, createClientReceiveStateSystem } from '../../systems/ClientReceiveStateSystem'
 import { createPlayerStateUpdateSystem } from '../../systems/PlayerControlSystem'
-enum Textures
+import MapManager from '../services/mapManager'
+
+export enum Textures
 {
 	Star = 0,
 	Bomb = 1
 }
 
-const TextureKeys = [
+export const TextureKeys = [
 	'star',
 	'bomb'
+]
+
+export enum Maps
+{
+	Test = 0
+}
+
+export const MapKeys = [
+	'test'
+]
+export const TileKeys = [
+	'test'
 ]
 
 export default class Game extends Phaser.Scene {
@@ -57,7 +71,11 @@ export default class Game extends Phaser.Scene {
 	preload() {
 		this.load.image(TextureKeys[Textures.Star], 'assets/star.png')
 		this.load.image(TextureKeys[Textures.Bomb], 'assets/bomb.png')
+		this.load.image(TileKeys[Maps.Test], 'assets/tmw_desert_spacing.png')
+		this.load.tilemapTiledJSON(MapKeys[Maps.Test], 'assets/maps/test.tmj');
 	}
+
+
 
 	init() 
 	{
@@ -68,6 +86,8 @@ export default class Game extends Phaser.Scene {
 	{
 		const myId = await this.server.join()
 		this.myServerId = myId
+
+		MapManager.initMap(this, Maps.Test)
 
 		this.worldECS = createWorld();
 		this.createPlayer(myId, this.worldECS, true)
