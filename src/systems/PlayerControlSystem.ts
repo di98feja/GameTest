@@ -20,7 +20,7 @@ export function createPlayerStateUpdateSystem(speed = 100, sprintFactor = 2)
             const playerPos = new Phaser.Math.Vector2(Position.x[id], Position.y[id])
             const mousePos = new Phaser.Math.Vector2(Input.mouseX[id], Input.mouseY[id])
             Rotation.angle[id] = Phaser.Math.Angle.BetweenPoints(playerPos, mousePos)
-
+            
             const currentSpeed = isSprint ? speed * sprintFactor : speed
             if (isUp) {
                 Velocity.y[id] = -currentSpeed

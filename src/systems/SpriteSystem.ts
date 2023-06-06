@@ -38,7 +38,7 @@ export function createSpriteSystem(matter: Phaser.Physics.Matter.MatterPhysics, 
     })
 }
 
-export function createUpdateLocalSpritesSystem() {
+export function updateLocalSpritesSystem() {
     const query = defineQuery([Rotation, Velocity, Sprite, Position])
     return defineSystem(world => {
         const entities = query(world)
@@ -54,7 +54,7 @@ export function createUpdateLocalSpritesSystem() {
     })
 }
 
-export function createSpriteInterpolationSystem() {
+export function spriteInterpolationSystem() {
     const query = defineQuery([Rotation, Velocity, Sprite])
     return defineSystem(world => {
         const entities = query(world)

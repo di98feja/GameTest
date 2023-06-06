@@ -4,7 +4,7 @@ import { defineSystem, defineQuery } from "bitecs";
 import Player from "../components/Player";
 import Input from "../components/Input";
 
-export function createPlayerSystem(keyboard: Phaser.Input.Keyboard.KeyboardPlugin|null, mouse: Phaser.Input.Pointer) 
+export function createPlayerInputSystem(keyboard: Phaser.Input.Keyboard.KeyboardPlugin|null, mouse: Phaser.Input.Pointer, camera: Phaser.Cameras.Scene2D.Camera) 
 {
     const query = defineQuery([Player, Input])
     return defineSystem(world => {
@@ -18,8 +18,11 @@ export function createPlayerSystem(keyboard: Phaser.Input.Keyboard.KeyboardPlugi
                 Input.left[id] = keyboard.checkDown(keyboard.addKey('A')) ? 1 : 0
                 Input.right[id] = keyboard.checkDown(keyboard.addKey('D')) ? 1 : 0
             }
-            Input.mouseX[id] = mouse.x,
-            Input.mouseY[id] = mouse.y
+            const mx =  mouse.x + camera.scrollX
+			const my =  mouse.y + camera.scrollY
+
+            Input.mouseX[id] = mx,
+            Input.mouseY[id] = my
             Input.mouseLeft[id] = mouse.leftButtonDown() ? 1 : 0
             Input.mouseRight[id] = mouse.rightButtonDown() ? 1 : 0
             Input.mouseMiddle[id] = mouse.middleButtonDown() ? 1 : 0

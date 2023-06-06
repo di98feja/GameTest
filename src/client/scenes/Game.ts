@@ -1,6 +1,8 @@
 import Phaser, {GameObjects} from 'phaser'
 import { createWorld, addEntity, removeEntity, addComponent, IWorld, pipe } from 'bitecs'
 import Server, {Events} from '../services/server'
+import { IMainGameState } from '../../interfaces/IMainGameState'
+import MapManager from '../services/mapManager'
 
 // Components
 import Position from '../../components/Position'
@@ -9,16 +11,16 @@ import Rotation from '../../components/Rotation'
 import Player from '../../components/Player'
 import Input from '../../components/Input'
 import Projectile from '../../components/Projectile'
+import Camera from '../../components/Camera'
+import Velocity from '../../components/Velocity'
 
 // Systems
-import { deleteSprite, createUpdateLocalSpritesSystem, createSpriteInterpolationSystem, createSpriteSystem, getPlayerSprites } from '../../systems/SpriteSystem'
-import { createPlayerSystem as createPlayerInputSystem } from '../../systems/PlayerSystem'
-import Velocity from '../../components/Velocity'
-import { IMainGameState } from '../../interfaces/IMainGameState'
+import { deleteSprite, updateLocalSpritesSystem, spriteInterpolationSystem, createSpriteSystem, getPlayerSprites } from '../../systems/SpriteSystem'
+import { createPlayerInputSystem } from '../../systems/PlayerSystem'
 import { createClientSendInputSystem } from '../../systems/ClientSendInputSystem'
 import { createClientReceiveDebugStateSystem, createClientReceiveProjectileStateSystem, createClientReceiveStateSystem } from '../../systems/ClientReceiveStateSystem'
 import { createPlayerStateUpdateSystem } from '../../systems/PlayerControlSystem'
-import MapManager from '../services/mapManager'
+import { cameraFollowSystem } from '../../systems/CameraSystem'
 
 export enum Textures
 {
@@ -88,6 +90,7 @@ export default class Game extends Phaser.Scene {
 		this.myServerId = myId
 
 		MapManager.initMap(this, Maps.Test)
+		this.cameras.main.setBounds(-50, -50, this.game.config.width as number + 100, this.game.config.height as number + 100)
 
 		this.worldECS = createWorld();
 		this.createPlayer(myId, this.worldECS, true)
@@ -122,17 +125,17 @@ export default class Game extends Phaser.Scene {
 
 			createClientReceiveStateSystem(this.player_localIdToServerIdMap, this.currentState)(this.worldECS)
 			createClientReceiveProjectileStateSystem(this.projectile_localIdToServerIdMap, this.currentState)(this.worldECS)
-			createUpdateLocalSpritesSystem()(this.worldECS)
-
+			updateLocalSpritesSystem()(this.worldECS)
 			createClientReceiveDebugStateSystem(this.matter, this.currentState)
 		})
 
 		this.clientUpdatePipeline = pipe(
 			createSpriteSystem(this.matter, TextureKeys),
-			createPlayerInputSystem(this.input.keyboard, this.input.activePointer),
+			cameraFollowSystem(this.cameras.main),
+			createPlayerInputSystem(this.input.keyboard, this.input.activePointer, this.cameras.main),
 			createClientSendInputSystem(this.server, this.player_localIdToServerIdMap),
 			createPlayerStateUpdateSystem(2, 2),
-			createSpriteInterpolationSystem(),
+			spriteInterpolationSystem(),
 		)
 		
 		this.server.events.addListener(Events.Ping.toString(), (msg:number) => {
@@ -144,6 +147,8 @@ export default class Game extends Phaser.Scene {
 			this.server.ping(this.time.now)
 		}})
 		this.time.addEvent(pingTimer)
+
+		
 	}
 
 	private removeAnyDestroyedProjectiles(currentState:IMainGameState, worldECS:IWorld) {
@@ -202,6 +207,7 @@ export default class Game extends Phaser.Scene {
 		Sprite.texture[localId] = Textures.Star
 		if (isLocal) {
 			addComponent(world, Input, localId)
+			addComponent(world, Camera, localId)
 		}
 	}
 
@@ -224,6 +230,8 @@ export default class Game extends Phaser.Scene {
 		if (!this.worldECS || !this.clientUpdatePipeline)	return
 		this.clientUpdatePipeline(this.worldECS)
 
+
+
 		if (this.msgText && this.msgTextTimeout < this.time.now) {
             this.msgText.setVisible(false)
             this.msgText.destroy()
@@ -233,7 +241,7 @@ export default class Game extends Phaser.Scene {
 			const players = getPlayerSprites()
 			const me = players.get(0)
 			if (!me) return
-			let s = `ping:${this.pingTime.toFixed(0)}\ntime:${t.toFixed(1)}, delta:${d.toFixed(1)}\nMe:  ${this.myServerId}(${me.x.toFixed(0)}, ${me.y.toFixed(0)})`
+			let s = `ping:${this.pingTime.toFixed(0)}\ntime:${t.toFixed(1)}, delta:${d.toFixed(1)}\nMe:  ${this.myServerId}(${me.x.toFixed(0)}, ${me.y.toFixed(0)}))`
 			for (const k of players.keys()) {
 				if (k != 0) {
 					s = `${s}\nThem:${this.player_localIdToServerIdMap.get(k)}(${players.get(k)?.x.toFixed(0)}, ${players.get(k)?.y.toFixed(0)})`
