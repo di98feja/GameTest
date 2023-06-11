@@ -5,6 +5,10 @@ export interface IPlayerState
     direction:number
     velocityX:number
     velocityY:number
+    maxHealth:number
+    currentHealth:number
+    maxEnergy:number
+    currentEnergy:number
 }
 
 export interface IProjectileState{

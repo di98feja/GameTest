@@ -4,6 +4,7 @@ import MatterJS, { Composite } from "matter-js";
 import * as fs from 'fs'
 import { Convert } from "../../interfaces/ITileMap.js";
 import * as poly_decomp from 'poly-decomp'
+import ServerConstants from "../constants.js";
 
 export class TileType {
     public id:number
@@ -70,7 +71,7 @@ export class CreateMapInMatterCommand extends Command<MainGame>
     execute()
     {
         const matter = this.room.matterPhysics
-        let tileIndex = 0; // 14,13|32,13|32,19|20,19|20,32|12,28
+        let tileIndex = 0;
         for (let h = 0; h < TileMap.height; h++) {
             for (let w = 0; w < TileMap.width; w++) {
                 const tilePos = MatterJS.Vector.create(w*TileMap.tileSize + TileMap.tileSize/2, h*TileMap.tileSize+ TileMap.tileSize/2)
@@ -83,7 +84,15 @@ export class CreateMapInMatterCommand extends Command<MainGame>
                // tile.vertices.forEach(v => console.log(`${v.x},${v.y}`))
                 const vArrays = new Array<MatterJS.Vector[]>()
                 vArrays.push(tile.vertices)
-                const tileBody = MatterJS.Bodies.fromVertices(TileMap.tileSize/2, TileMap.tileSize/2, vArrays, {isStatic:true})
+                const tileBody = MatterJS.Bodies.fromVertices(TileMap.tileSize/2, TileMap.tileSize/2, vArrays, 
+                {
+                    isStatic:true, 
+                    collisionFilter: 
+                    {
+                        category: ServerConstants.COLLISION_CATEGORY_WALL, 
+                        mask: ServerConstants.COLLISION_CATEGORY_PLAYER | ServerConstants.COLLISION_CATEGORY_PROJECTILE
+                    }
+                })
                 const vAdjusted = new Array<MatterJS.Vector>()
                 tile.vertices.forEach(v => vAdjusted.push(MatterJS.Vector.add(v, tile.origin)))
                 const oldBB = CalcBounds(tile.vertices)

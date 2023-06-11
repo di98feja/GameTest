@@ -36,10 +36,10 @@ export class OnAfterPhysicsUpdateCommand extends Command<MainGame>
             projectileState.velocityY = projectileBody.velocity.y
             projectileState.ttl = projectile.ttl
             projectileBody.motion
-            const v2 = MatterJS.Vector.create(projectileBody.velocity.x, projectileBody.velocity.y)
-            console.log(`Velocity:${MatterJS.Vector.magnitude(v2)}`)
-            console.log(`Speed:${projectileBody.speed}`)
-            console.log(`Motion:${projectileBody.motion}`)
+            // const v2 = MatterJS.Vector.create(projectileBody.velocity.x, projectileBody.velocity.y)
+            // console.log(`Velocity:${MatterJS.Vector.magnitude(v2)}`)
+            // console.log(`Speed:${projectileBody.speed}`)
+            // console.log(`Motion:${projectileBody.motion}`)
         }  
         if (SEND_DEBUG_BODY_OUTLINES) 
         {

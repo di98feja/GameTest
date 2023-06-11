@@ -1,13 +1,15 @@
 import { defineQuery, defineSystem } from "bitecs";
 
 import Player from "../components/Player"
-import { IMainGameState } from "../interfaces/IMainGameState";
+import { IMainGameState } from "../../interfaces/IMainGameState";
 import Position from "../components/Position";
 import Rotation from "../components/Rotation";
 import Velocity from "../components/Velocity";
 import Projectile from "../components/Projectile";
+import Energy from "../components/Energy";
+import Health from "../components/Health";
 
-export function createClientReceiveStateSystem(idMap: Map<number,string>, gameState?: IMainGameState)
+export function clientReceivePlayerPositionsSystem(idMap: Map<number,string>, gameState?: IMainGameState)
 {
     const query = defineQuery([Player, Position, Rotation, Velocity])
     return defineSystem(world => {
@@ -15,7 +17,7 @@ export function createClientReceiveStateSystem(idMap: Map<number,string>, gameSt
         for (const id of query(world))
         {
             const playerId = idMap.get(id)
-            if (!playerId) continue
+            if (playerId == undefined) continue
             const playerState = gameState?.players.get(playerId)
             if (!playerState) continue
             Position.x[id] = playerState.x
@@ -29,7 +31,27 @@ export function createClientReceiveStateSystem(idMap: Map<number,string>, gameSt
         return world
     })
 }
-export function createClientReceiveProjectileStateSystem(idMap: Map<number,string>, gameState?: IMainGameState)
+export function clientReceivePlayerStatsSystem(idMap: Map<number,string>, gameState?: IMainGameState)
+{
+    const query = defineQuery([Health, Energy])
+    return defineSystem(world => {
+
+        for (const id of query(world))
+        {
+            const playerId = idMap.get(id)
+            if (playerId == undefined) continue
+            const playerState = gameState?.players.get(playerId)
+            if (!playerState) continue
+            Health.maxHealth[id] = playerState.maxHealth
+            Health.currentHealth[id] = playerState.currentHealth
+            Energy.maxEnergy[id] = playerState.maxEnergy
+            Energy.currentEnergy[id] = playerState.currentEnergy
+        }
+
+        return world
+    })
+}
+export function clientReceiveProjectileStateSystem(idMap: Map<number,string>, gameState?: IMainGameState)
 {
     const query = defineQuery([Projectile, Position, Velocity])
     return defineSystem(world => {
@@ -51,7 +73,7 @@ export function createClientReceiveProjectileStateSystem(idMap: Map<number,strin
 
 const serverDebugIdToClientObj = new Map<string, MatterJS.BodyType>()
 let matterDebugGraphics: Phaser.GameObjects.Graphics
-export function createClientReceiveDebugStateSystem(matter: Phaser.Physics.Matter.MatterPhysics, gameState?:IMainGameState) 
+export function clientReceiveDebugStateSystem(matter: Phaser.Physics.Matter.MatterPhysics, gameState?:IMainGameState) 
 {
     if (!gameState) return
     if (!matterDebugGraphics) matterDebugGraphics = matter.world.createDebugGraphic()

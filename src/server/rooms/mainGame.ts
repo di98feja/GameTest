@@ -7,6 +7,8 @@ import MatterJS from "matter-js";
 import { OnAfterPhysicsUpdateCommand } from "../commands/PhysicsCommands.js";
 import { Projectile } from "../gameLogic/weaponLogic.js";
 import { CreateMapInMatterCommand, LoadMapCommand } from "../commands/MapCommands.js";
+import { UpdateProjectilesCommand } from "../commands/ProjectileCommands.js";
+import { UpdatePlayerStatesCommand } from "../commands/PlayerStateCommands.js";
 
 export default class MainGame extends Colyseus.Room<MainGameState>
 {
@@ -39,17 +41,8 @@ export default class MainGame extends Colyseus.Room<MainGameState>
             this.dispatcher.dispatch(new OnAfterPhysicsUpdateCommand())
         })
         this.setSimulationInterval((deltaTime) => {  
-            for (const proj of this.projectiles) {
-                const p = proj[1]
-                if (!p) continue
-                if (p.ttl <= this.clock.currentTime) {
-                    console.log(`remove ${proj[0]} at ${p.body.position.x},${p.body.position.y}`)
-                    MatterJS.Composite.remove(this.matterPhysics.world, p.body, true)
-                    this.projectiles.delete(proj[0])
-                    this.state.projectiles.delete(proj[0])
-                }
-            }
-
+            this.dispatcher.dispatch(new UpdatePlayerStatesCommand(), deltaTime)
+            this.dispatcher.dispatch(new UpdateProjectilesCommand(), deltaTime)
             MatterJS.Engine.update(this.matterPhysics, deltaTime)
         })
 

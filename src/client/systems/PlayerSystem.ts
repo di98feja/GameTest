@@ -4,7 +4,7 @@ import { defineSystem, defineQuery } from "bitecs";
 import Player from "../components/Player";
 import Input from "../components/Input";
 
-export function createPlayerInputSystem(keyboard: Phaser.Input.Keyboard.KeyboardPlugin|null, mouse: Phaser.Input.Pointer, camera: Phaser.Cameras.Scene2D.Camera) 
+export function playerInputSystem(keyboard: Phaser.Input.Keyboard.KeyboardPlugin|null, mouse: Phaser.Input.Pointer, camera: Phaser.Cameras.Scene2D.Camera) 
 {
     const query = defineQuery([Player, Input])
     return defineSystem(world => {

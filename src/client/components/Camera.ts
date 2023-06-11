@@ -1,4 +1,4 @@
-import { defineComponent, Types } from "bitecs";
+import { defineComponent} from "bitecs";
 
 export const Camera = defineComponent({
 })

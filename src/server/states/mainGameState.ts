@@ -1,6 +1,5 @@
 import {Schema, MapSchema, ArraySchema, type} from '@colyseus/schema'
 import { IDebugInfo, IMainGameState, IPlayerState, IProjectileState, IVec2 } from '../../interfaces/IMainGameState.js'
-import MatterJS from 'matter-js'
 
 export class PlayerState extends Schema implements IPlayerState
 {
@@ -9,7 +8,11 @@ export class PlayerState extends Schema implements IPlayerState
     @type('number') direction: number = 0
     @type('number') velocityX: number = 0
     @type('number') velocityY: number = 0
-    @type('number') weaponChargeStart: number = 0
+    @type('number') weaponCharge: number = 0
+    @type('number') maxHealth: number = 100
+    @type('number') currentHealth: number = 100
+    @type('number') maxEnergy: number = 100
+    @type('number') currentEnergy: number = 100
 }
 
 export class ProjectileState extends Schema implements IProjectileState

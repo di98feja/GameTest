@@ -5,22 +5,25 @@ import { IMainGameState } from '../../interfaces/IMainGameState'
 import MapManager from '../services/mapManager'
 
 // Components
-import Position from '../../components/Position'
-import Sprite from '../../components/Sprite'
-import Rotation from '../../components/Rotation'
-import Player from '../../components/Player'
-import Input from '../../components/Input'
-import Projectile from '../../components/Projectile'
-import Camera from '../../components/Camera'
-import Velocity from '../../components/Velocity'
+import Position from '../components/Position'
+import Sprite from '../components/Sprite'
+import Rotation from '../components/Rotation'
+import Player from '../components/Player'
+import Input from '../components/Input'
+import Projectile from '../components/Projectile'
+import Camera from '../components/Camera'
+import Velocity from '../components/Velocity'
+import Health from '../components/Health'
+import Energy from '../components/Energy'
 
 // Systems
-import { deleteSprite, updateLocalSpritesSystem, spriteInterpolationSystem, createSpriteSystem, getPlayerSprites } from '../../systems/SpriteSystem'
-import { createPlayerInputSystem } from '../../systems/PlayerSystem'
-import { createClientSendInputSystem } from '../../systems/ClientSendInputSystem'
-import { createClientReceiveDebugStateSystem, createClientReceiveProjectileStateSystem, createClientReceiveStateSystem } from '../../systems/ClientReceiveStateSystem'
-import { createPlayerStateUpdateSystem } from '../../systems/PlayerControlSystem'
-import { cameraFollowSystem } from '../../systems/CameraSystem'
+import { deleteSprite, updateLocalSpritesSystem, spriteInterpolationSystem, createSpriteSystem, getPlayerSprites } from '../systems/SpriteSystem'
+import { playerInputSystem } from '../systems/PlayerSystem'
+import { clientSendInputSystem } from '../systems/ClientSendInputSystem'
+import { clientReceiveDebugStateSystem, clientReceiveProjectileStateSystem, clientReceivePlayerPositionsSystem, clientReceivePlayerStatsSystem } from '../systems/ClientReceiveStateSystem'
+import { createPlayerStateUpdateSystem } from '../systems/PlayerControlSystem'
+import { cameraFollowSystem } from '../systems/CameraSystem'
+import { createHUDSystem, updateHUDSystem } from '../systems/HUDSystem'
 
 export enum Textures
 {
@@ -123,17 +126,20 @@ export default class Game extends Phaser.Scene {
 			this.addAnyNewProjectiles(this.currentState, this.worldECS)
 			this.removeAnyDestroyedProjectiles(this.currentState, this.worldECS)
 
-			createClientReceiveStateSystem(this.player_localIdToServerIdMap, this.currentState)(this.worldECS)
-			createClientReceiveProjectileStateSystem(this.projectile_localIdToServerIdMap, this.currentState)(this.worldECS)
+			clientReceivePlayerPositionsSystem(this.player_localIdToServerIdMap, this.currentState)(this.worldECS)
+			clientReceiveProjectileStateSystem(this.projectile_localIdToServerIdMap, this.currentState)(this.worldECS)
+			clientReceivePlayerStatsSystem(this.player_localIdToServerIdMap, this.currentState)(this.worldECS)
 			updateLocalSpritesSystem()(this.worldECS)
-			createClientReceiveDebugStateSystem(this.matter, this.currentState)
+			clientReceiveDebugStateSystem(this.matter, this.currentState)
 		})
 
 		this.clientUpdatePipeline = pipe(
 			createSpriteSystem(this.matter, TextureKeys),
+			createHUDSystem(this, TextureKeys),
+			updateHUDSystem(),
 			cameraFollowSystem(this.cameras.main),
-			createPlayerInputSystem(this.input.keyboard, this.input.activePointer, this.cameras.main),
-			createClientSendInputSystem(this.server, this.player_localIdToServerIdMap),
+			playerInputSystem(this.input.keyboard, this.input.activePointer, this.cameras.main),
+			clientSendInputSystem(this.server, this.player_localIdToServerIdMap),
 			createPlayerStateUpdateSystem(2, 2),
 			spriteInterpolationSystem(),
 		)
@@ -208,6 +214,8 @@ export default class Game extends Phaser.Scene {
 		if (isLocal) {
 			addComponent(world, Input, localId)
 			addComponent(world, Camera, localId)
+			addComponent(world, Health, localId)
+			addComponent(world, Energy, localId)
 		}
 	}
 

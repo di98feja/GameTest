@@ -2,11 +2,11 @@ import { defineQuery, defineSystem } from "bitecs";
 
 import Player from "../components/Player"
 import Input from "../components/Input"
-import Server from "../client/services/server";
-import { MouseButtons, MoveDirection, PlayerInputMessage } from "../interfaces/Messages";
+import Server from "../services/server";
+import { MouseButtons, MoveDirection, PlayerInputMessage } from "../../interfaces/Messages";
 import Position from "../components/Position";
 
-export function createClientSendInputSystem(server: Server, idMap: Map<number,string>)
+export function clientSendInputSystem(server: Server, idMap: Map<number,string>)
 {
     const query = defineQuery([Player, Input, Position])
     return defineSystem(world => {

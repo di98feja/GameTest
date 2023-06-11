@@ -4,6 +4,7 @@ import { PlayerState } from "../states/mainGameState.js"
 import { MessageType, MouseButtons, MoveDirection, PlayerInputMessage } from "../../interfaces/Messages.js"
 import MatterJS from "matter-js";
 import { HandleWeaponLogic } from "../gameLogic/weaponLogic.js";
+import ServerConstants from "../constants.js";
 
 export class OnPlayerJoinedCommand extends Command<MainGame, string>
 {
@@ -12,8 +13,22 @@ export class OnPlayerJoinedCommand extends Command<MainGame, string>
         const newPlayer = new PlayerState()
         newPlayer.x = 50
         newPlayer.y = 50
+        newPlayer.currentHealth = 100
+        newPlayer.maxHealth = 100
+        newPlayer.currentEnergy = 100
+        newPlayer.maxEnergy = 100
         this.state.players.set(sessionId, newPlayer)
-        const body = MatterJS.Bodies.circle(50, 50, 12, {density:1, friction:1, restitution:0.9})
+        const body = MatterJS.Bodies.circle(50, 50, 12, 
+            {
+                density:1, 
+                friction:1, 
+                restitution:0.9,
+                collisionFilter: 
+                {
+                    category: ServerConstants.COLLISION_CATEGORY_PLAYER,
+                    mask: ServerConstants.COLLISION_CATEGORY_PLAYER | ServerConstants.COLLISION_CATEGORY_PROJECTILE | ServerConstants.COLLISION_CATEGORY_WALL                
+                }
+            })
         body.collisionFilter.group = -body.id
         MatterJS.Composite.add(this.room.matterPhysics.world, body)
         this.room.playerBodies.set(sessionId, body)
