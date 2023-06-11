@@ -8,6 +8,7 @@ import Velocity from "../components/Velocity";
 import Projectile from "../components/Projectile";
 import Energy from "../components/Energy";
 import Health from "../components/Health";
+import Speed from "../components/Speed";
 
 export function clientReceivePlayerPositionsSystem(idMap: Map<number,string>, gameState?: IMainGameState)
 {
@@ -33,7 +34,7 @@ export function clientReceivePlayerPositionsSystem(idMap: Map<number,string>, ga
 }
 export function clientReceivePlayerStatsSystem(idMap: Map<number,string>, gameState?: IMainGameState)
 {
-    const query = defineQuery([Health, Energy])
+    const query = defineQuery([Health, Energy, Speed])
     return defineSystem(world => {
 
         for (const id of query(world))
@@ -46,6 +47,7 @@ export function clientReceivePlayerStatsSystem(idMap: Map<number,string>, gameSt
             Health.currentHealth[id] = playerState.currentHealth
             Energy.maxEnergy[id] = playerState.maxEnergy
             Energy.currentEnergy[id] = playerState.currentEnergy
+            Speed.speed[id] = playerState.speed
         }
 
         return world

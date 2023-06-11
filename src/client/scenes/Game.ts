@@ -15,6 +15,7 @@ import Camera from '../components/Camera'
 import Velocity from '../components/Velocity'
 import Health from '../components/Health'
 import Energy from '../components/Energy'
+import Speed from '../components/Speed'
 
 // Systems
 import { deleteSprite, updateLocalSpritesSystem, spriteInterpolationSystem, createSpriteSystem, getPlayerSprites } from '../systems/SpriteSystem'
@@ -140,7 +141,7 @@ export default class Game extends Phaser.Scene {
 			cameraFollowSystem(this.cameras.main),
 			playerInputSystem(this.input.keyboard, this.input.activePointer, this.cameras.main),
 			clientSendInputSystem(this.server, this.player_localIdToServerIdMap),
-			createPlayerStateUpdateSystem(2, 2),
+			createPlayerStateUpdateSystem(this.player_localIdToServerIdMap),
 			spriteInterpolationSystem(),
 		)
 		
@@ -216,6 +217,7 @@ export default class Game extends Phaser.Scene {
 			addComponent(world, Camera, localId)
 			addComponent(world, Health, localId)
 			addComponent(world, Energy, localId)
+			addComponent(world, Speed, localId)
 		}
 	}
 

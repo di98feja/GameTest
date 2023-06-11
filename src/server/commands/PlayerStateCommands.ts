@@ -12,7 +12,16 @@ export class UpdatePlayerStatesCommand extends Command<MainGame, number>
                 p[1].weaponCharge += charge
                 p[1].currentEnergy -= charge
             }
-            else if (p[1].currentEnergy < p[1].maxEnergy)
+            if (p[1].isSprinting && p[1].currentEnergy > 0) {
+                p[1].currentEnergy -= Math.min(t/ServerConstants.PLAYER_SPRINT_ENERGY_TO_MS_RATIO, p[1].currentEnergy)
+                p[1].speed = ServerConstants.PLAYER_SPRINT_SPEED
+            }
+            else
+            {
+                p[1].speed = ServerConstants.PLAYER_RUN_SPEED
+            }
+
+            if (p[1].weaponCharge == 0 && !p[1].isSprinting && p[1].currentEnergy < p[1].maxEnergy)
             {
                 p[1].currentEnergy += Math.min(t/ServerConstants.PROJECTILE_TTL_RECHARGE_TO_MS_RATIO, p[1].maxEnergy - p[1].currentEnergy)
             }

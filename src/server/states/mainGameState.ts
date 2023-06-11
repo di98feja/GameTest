@@ -13,6 +13,8 @@ export class PlayerState extends Schema implements IPlayerState
     @type('number') currentHealth: number = 100
     @type('number') maxEnergy: number = 100
     @type('number') currentEnergy: number = 100
+    @type('boolean') isSprinting: boolean = false
+    @type('number') speed: number = 2
 }
 
 export class ProjectileState extends Schema implements IProjectileState

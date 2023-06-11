@@ -6,6 +6,9 @@ class ServerConstants {
     public static COLLISION_CATEGORY_PLAYER =        0b100
     public static COLLISION_CATEGORY_PROJECTILE =    0b010
     public static COLLISION_CATEGORY_WALL =          0b001
+    public static PLAYER_SPRINT_ENERGY_TO_MS_RATIO = 100
+    public static PLAYER_RUN_SPEED = 2
+    public static PLAYER_SPRINT_SPEED = 4
 }
 
 export default ServerConstants

@@ -9,6 +9,8 @@ export interface IPlayerState
     currentHealth:number
     maxEnergy:number
     currentEnergy:number
+    isSprinting:boolean
+    speed:number
 }
 
 export interface IProjectileState{

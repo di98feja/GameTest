@@ -65,10 +65,11 @@ export class OnPlayerInputCommand extends Command<MainGame, PlayerInputCommandPa
     execute( payload:PlayerInputCommandPayload )
     {
         const playerBody = this.room.playerBodies.get(payload.sessionId)
-        if (!playerBody) return;
+        const playerState = this.state.players.get(payload.sessionId)
+        if (!playerBody || !playerState) return;
         playerBody.angle = payload.message.angle
-        const sprint = payload.message.sprint
-        const currentSpeed = sprint ? 4 : 2
+        playerState.isSprinting = payload.message.sprint
+        const currentSpeed = playerState.speed
         const isUp = !!(payload.message.moveDirection & MoveDirection.Up)
         const isDown = !!(payload.message.moveDirection & MoveDirection.Down)
         const isLeft = !!(payload.message.moveDirection & MoveDirection.Left)

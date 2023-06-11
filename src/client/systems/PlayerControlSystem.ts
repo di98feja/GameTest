@@ -5,23 +5,23 @@ import Rotation from "../components/Rotation";
 import Velocity from "../components/Velocity";
 import Input from "../components/Input";
 import Position from "../components/Position";
+import Speed from '../components/Speed'
 
-export function createPlayerStateUpdateSystem(speed = 100, sprintFactor = 2)
+export function createPlayerStateUpdateSystem(idMap: Map<number,string>)
 {
-    const query = defineQuery([Input, Rotation, Velocity, Position])
+    const query = defineQuery([Input, Rotation, Velocity, Position, Speed])
     return defineSystem(world => {
         for (const id of query(world)){
             const isUp = !!Input.up[id]
             const isDown = !!Input.down[id]
             const isLeft = !!Input.left[id]
             const isRight = !!Input.right[id]
-            const isSprint = !!Input.shift[id]
 
             const playerPos = new Phaser.Math.Vector2(Position.x[id], Position.y[id])
             const mousePos = new Phaser.Math.Vector2(Input.mouseX[id], Input.mouseY[id])
             Rotation.angle[id] = Phaser.Math.Angle.BetweenPoints(playerPos, mousePos)
             
-            const currentSpeed = isSprint ? speed * sprintFactor : speed
+            const currentSpeed = Speed.speed[id]
             if (isUp) {
                 Velocity.y[id] = -currentSpeed
             } else if(isDown) {
