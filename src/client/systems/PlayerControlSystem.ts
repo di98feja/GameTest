@@ -7,7 +7,7 @@ import Input from "../components/Input";
 import Position from "../components/Position";
 import Speed from '../components/Speed'
 
-export function createPlayerStateUpdateSystem(idMap: Map<number,string>)
+export function createPlayerStateUpdateSystem()
 {
     const query = defineQuery([Input, Rotation, Velocity, Position, Speed])
     return defineSystem(world => {

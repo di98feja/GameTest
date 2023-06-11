@@ -18,7 +18,7 @@ export class UpdateProjectilesCommand extends Command<MainGame, number>
             else if (p.startTime + 100 <= this.clock.currentTime) {
                 p.body.collisionFilter.group = 0
             }
-
+            
         }
     }
 }
